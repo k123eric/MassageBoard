@@ -1,9 +1,49 @@
 jQuery(document).ready(initialize);
 
+var vue;
 function initialize() {
-    // const site_url = jQuery("meta#site_url").attr("content");
-    post_get_all(); // undefined
+    vue = new Vue({
+        el: "#content",
+        props: ['post_data'],
+        data: {
+            posts: [],
+        },
+        created: async function () {
+            this.posts = await api_get_all_post();
+        }
+    });
+
+    Vue.component('post', {
+        template: "#post_template",
+        props: ['post_data'],
+        methods: {
+            gp: async function () {
+                const success = await submit_evaluationgp_post(this.post_data.id);
+                if (success == true) {
+                    swal("勇者獲得了1點能量");
+                    this.post_data.gp++;
+                }
+            },
+            bp: async function () {
+                const success = await submit_evaluationbp_post(this.post_data.id);
+                if (success == true) {
+                    swal("勇者削弱了1點精神");
+                    this.post_data.bp++;
+                }
+            },
+            edit: function () {
+
+            },
+            remove: function () {
+
+            },
+        }
+    });
+
+    jQuery(".green.button").on("click", release_post_handler);
+    jQuery(".search.button").on("click", search_handler);
 }
+
 
 function popup_window(id, title, title_editable, content) {
     let modal = jQuery(".ui.modal");
@@ -31,31 +71,6 @@ function popup_delete_window(id, title, content) {
     modal.find(".positive.button").hide();
     modal.find(".primary.button").show();
     modal.find(".primary.button").on("click", submit_delete_handler);
-}
-
-
-async function post_get_all() {
-    const posts = await api_get_all_post();
-    const post_template = await get_template("post");
-    jQuery("#content").empty();
-    posts.forEach(post_data => {
-        let post_html = jQuery(post_template);
-        post_html.attr("id", post_data.id);
-        post_html.find(".title").text(post_data.title);
-        post_html.find(".author").text("匿名");
-        post_html.find(".time").text(post_data.Upload_time);
-        post_html.find(".time").attr("title", `最後更新時間：${post_data.Update_time}`);
-        post_html.find(".body").html(post_data.content);
-        post_html.find(".gp").text(post_data.gp);
-        post_html.find(".bp").text(post_data.bp);
-        jQuery("#content").append(post_html);
-    });
-    jQuery(".edit.button").on("click", edit_post_handler);
-    jQuery(".delete.button").on("click", delete_post_handler);
-    jQuery(".orange.button").on("click", evaluationgp_post_handler);
-    jQuery(".black.button").on("click", evaluationbp_post_handler);
-    jQuery(".green.button").on("click", release_post_handler);
-    jQuery(".search.button").on("click", search_handler);
 }
 
 function get_template(template_name) {
@@ -92,16 +107,6 @@ function delete_post_handler(event) {
     let title = jQuery(`#${id}.post > .header > .title`).text();
     let content = jQuery(`#${id}.post > .body`).html();
     popup_delete_window(id, title, content);
-}
-
-function evaluationgp_post_handler(event) {
-    let id = jQuery(event.target).parents("div.post").attr("id");
-    submit_evaluationgp_post(id);
-}
-
-function evaluationbp_post_handler(event) {
-    let id = jQuery(event.target).parents("div.post").attr("id");
-    submit_evaluationbp_post(id);
 }
 
 function search_handler(event) {
@@ -165,41 +170,38 @@ function submit_delete_handler() {
 }
 
 function submit_evaluationgp_post(id) {
-    const site_url = jQuery("meta#site_url").attr("content");
-    jQuery.ajax({
-        type: "POST",
-        data: {
-            "id": id
-        },
-        url: `${site_url}/Post/evaluation_postgp`,
-        success: function (success) {
-            if (success == true) {
-                post_get_all();
-                swal("勇者獲得了1點能量");
-            } else {
-                swal("失敗了");
-            }
-        }
-    })
+    return new Promise(function (resolve, reject) {
+        const site_url = jQuery("meta#site_url").attr("content");
+        jQuery.ajax({
+            type: "POST",
+            data: {
+                "id": id
+            },
+            url: `${site_url}/Post/evaluation_postgp`,
+            success: response => {
+                resolve(response);
+            },
+            error: reject
+        });
+    });
 }
 
+
 function submit_evaluationbp_post(id) {
-    const site_url = jQuery("meta#site_url").attr("content");
-    jQuery.ajax({
-        type: "POST",
-        data: {
-            "id": id
-        },
-        url: `${site_url}/Post/evaluation_postbp`,
-        success: function (success) {
-            if (success == true) {
-                post_get_all();
-                swal("勇者削弱了1點精神");
-            } else {
-                swal("失敗了");
-            }
-        }
-    })
+    return new Promise(function (resolve, reject) {
+        const site_url = jQuery("meta#site_url").attr("content");
+        jQuery.ajax({
+            type: "POST",
+            data: {
+                "id": id
+            },
+            url: `${site_url}/Post/evaluation_postbp`,
+            success: response => {
+                resolve(response);
+            },
+            error: reject
+        });
+    });
 }
 
 function submit_search(match) {

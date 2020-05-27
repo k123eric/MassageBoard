@@ -25,7 +25,7 @@
             </div>
             <a id="bp" class="ui basic left pointing label bp"></a>
         </div>
-        <button class="ui blue labeled icon edit button" style="float:right"><i class="edit outline icon"></i>編輯</button>
+        <button class=" ui blue labeled icon edit button" style="float:right"><i class="edit outline icon"></i>編輯</button>
         <button class="ui red labeled icon delete button" style="float:right"><i class="trash alternate outline icon"></i>刪除</button>
     </div>
 </div>
