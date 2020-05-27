@@ -35,10 +35,10 @@ function popup_delete_window(id, title, content) {
 
 
 async function post_get_all() {
-    const posts = await api_get_all_post();   
+    const posts = await api_get_all_post();
     const post_template = await get_template("post");
     jQuery("#content").empty();
-    posts.forEach(post_data => {  
+    posts.forEach(post_data => {
         let post_html = jQuery(post_template);
         post_html.attr("id", post_data.id);
         post_html.find(".title").text(post_data.title);
@@ -48,18 +48,17 @@ async function post_get_all() {
         post_html.find(".body").html(post_data.content);
         post_html.find(".gp").text(post_data.gp);
         post_html.find(".bp").text(post_data.bp);
-        jQuery("#content").append(post_html);       
+        jQuery("#content").append(post_html);
     });
-    jQuery(".edit.button").on("click", edit_post_handler);  
+    jQuery(".edit.button").on("click", edit_post_handler);
     jQuery(".delete.button").on("click", delete_post_handler);
     jQuery(".orange.button").on("click", evaluationgp_post_handler);
     jQuery(".black.button").on("click", evaluationbp_post_handler);
     jQuery(".green.button").on("click", release_post_handler);
     jQuery(".search.button").on("click", search_handler);
-
 }
 
-function get_template(template_name) {      
+function get_template(template_name) {
     return new Promise(function (resolve, reject) {
         const site_url = jQuery("meta#site_url").attr("content");
         jQuery.ajax({
@@ -73,14 +72,14 @@ function get_template(template_name) {
     });
 }
 
-function release_post_handler(event) { 
+function release_post_handler(event) {
     let id = jQuery(event.target).parents("div.post").attr("id");
     let title = jQuery(`#${id}.post > .header > .title`).text();
     let content = jQuery(`#${id}.post > .body`).html();
     popup_window(id, title, true, content);
 }
 
-function edit_post_handler(event) {    
+function edit_post_handler(event) {
     let id = jQuery(event.target).parents("div.post").attr("id");
     let title = jQuery(`#${id}.post > .header > .title`).text();
     let content = jQuery(`#${id}.post > .body`).html();
@@ -88,19 +87,19 @@ function edit_post_handler(event) {
 }
 
 
-function delete_post_handler(event) {        
+function delete_post_handler(event) {
     let id = jQuery(event.target).parents("div.post").attr("id");
     let title = jQuery(`#${id}.post > .header > .title`).text();
     let content = jQuery(`#${id}.post > .body`).html();
     popup_delete_window(id, title, content);
 }
 
-function evaluationgp_post_handler(event) {       
+function evaluationgp_post_handler(event) {
     let id = jQuery(event.target).parents("div.post").attr("id");
     submit_evaluationgp_post(id);
 }
 
-function evaluationbp_post_handler(event) {      
+function evaluationbp_post_handler(event) {
     let id = jQuery(event.target).parents("div.post").attr("id");
     submit_evaluationbp_post(id);
 }
@@ -111,14 +110,14 @@ function search_handler(event) {
 }
 
 
-function submit_release_handler() {  
+function submit_release_handler() {
     const site_url = jQuery("meta#site_url").attr("content");
     jQuery(".ui.form").ajaxSubmit({
         type: "POST",
         url: `${site_url}/Post/release_post`,
         success: function (success, statusText, xhr, element) {
             if (success == true) {
-                post_get_all()
+                post_get_all();
                 swal("發文成功！", "你成功發出了文章", "success");
             } else {
                 swal("發文失敗！", "發文時出了一點問題＞＜！", "error");
@@ -128,7 +127,7 @@ function submit_release_handler() {
 }
 
 
-function submit_edit_handler() {    
+function submit_edit_handler() {
     const site_url = jQuery("meta#site_url").attr("content");
     jQuery(".ui.form").ajaxSubmit({
         type: "POST",
@@ -146,7 +145,7 @@ function submit_edit_handler() {
     });
 }
 
-function submit_delete_handler() {  
+function submit_delete_handler() {
     let modal = jQuery(".ui.modal");
     modal.modal('hide');
     const site_url = jQuery("meta#site_url").attr("content");
@@ -165,7 +164,7 @@ function submit_delete_handler() {
     });
 }
 
-function submit_evaluationgp_post(id) {    
+function submit_evaluationgp_post(id) {
     const site_url = jQuery("meta#site_url").attr("content");
     jQuery.ajax({
         type: "POST",
@@ -175,6 +174,7 @@ function submit_evaluationgp_post(id) {
         url: `${site_url}/Post/evaluation_postgp`,
         success: function (success) {
             if (success == true) {
+                post_get_all();
                 swal("勇者獲得了1點能量");
             } else {
                 swal("失敗了");
@@ -183,7 +183,7 @@ function submit_evaluationgp_post(id) {
     })
 }
 
-function submit_evaluationbp_post(id) {       
+function submit_evaluationbp_post(id) {
     const site_url = jQuery("meta#site_url").attr("content");
     jQuery.ajax({
         type: "POST",
@@ -193,6 +193,7 @@ function submit_evaluationbp_post(id) {
         url: `${site_url}/Post/evaluation_postbp`,
         success: function (success) {
             if (success == true) {
+                post_get_all();
                 swal("勇者削弱了1點精神");
             } else {
                 swal("失敗了");

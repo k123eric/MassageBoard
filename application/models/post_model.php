@@ -116,6 +116,6 @@ class post_model extends CI_Model
             return $result->result();
         } else {
             return false;
-        }   
+        }
     }
 }
